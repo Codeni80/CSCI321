@@ -2,6 +2,7 @@
 #include <SDL.h>    
 #include "SDL_image.h"
 #include "Fixed_print.h"
+
  
  SDL_Texture * texture;
  SDL_Texture * tTexture;
@@ -31,93 +32,51 @@ int main(int argc, char ** argv) {
 	renderer = SDL_CreateRenderer(window, -1, 
 				SDL_RENDERER_ACCELERATED|SDL_RENDERER_PRESENTVSYNC);
 				
-	FixedPrint_Setup();
-	SDL_Surface * square;								//Creating the surface for the image to be placed on
+	
+	SDL_Surface * square;								//Creating the surfaces and textures for the images to be placed on
     SDL_Surface * image;
 	SDL_Surface * imgX;
 	SDL_Surface * board;
 	SDL_Surface * imgO;
-	SDL_Surface * drawImg;
-	SDL_Surface * winX;
-	SDL_Surface * winO;
+	SDL_Texture * drawImg;
+	SDL_Texture * winX;
+	SDL_Texture * winO;
 	SDL_Surface * turnX;
 	SDL_Surface * turnO;
 	SDL_Surface * numO;
 	SDL_Surface * numX;
 	SDL_Surface * numWin;
-	SDL_Surface * zero;
-	SDL_Surface * one;
-	SDL_Surface * two;
-	SDL_Surface * three;
-	SDL_Surface * four;
-	SDL_Surface * five;
-	SDL_Surface * six;
-	SDL_Surface * seven;
-	SDL_Surface * eight;
-	SDL_Surface * nine;
-	SDL_Surface * ten;
-	SDL_Surface * eleven;
-	SDL_Surface * twelve;
-	SDL_Surface * thirteen;
-	SDL_Surface * fourteen;
-	SDL_Surface * fifteen;
-	SDL_Surface * sixteen;
-	SDL_Surface * seventeen;
-	SDL_Surface * eightteen;
-	SDL_Surface * nineteen;
-	SDL_Surface * twenty;
 	
-	zero = IMG_Load("zero.png");
-	one = IMG_Load("one.png");
-	two = IMG_Load("two.png");
-	three = IMG_Load("three.png");
-	four = IMG_Load("four.png");
-	five = IMG_Load("five.png");
-	six = IMG_Load("six.png");
-	seven = IMG_Load("seven.png");
-	eight = IMG_Load("eight.png");
-	nine = IMG_Load("nine.png");
-	ten = IMG_Load("ten.png");
-	eleven = IMG_Load("eleven.png");
-	twelve = IMG_Load("twelve.png");
-	thirteen = IMG_Load("13.png");
-	fourteen = IMG_Load("14.png");
-	fifteen = IMG_Load("15.png");
-	sixteen = IMG_Load("16.png");
-	seventeen = IMG_Load("17.png");
-	eightteen = IMG_Load("18.png");
-	nineteen = IMG_Load("19.png");
-	twenty = IMG_Load("20.png");
-	numWin = IMG_Load("wins.png");
+	numWin = IMG_Load("wins.png");				//Loading in the images that will be used within the game
 	numO = IMG_Load("oWins.png");
 	numX = IMG_Load("xWins.png");
 	turnX = IMG_Load("turnX.png");
 	turnO = IMG_Load("turnO.png");
-	winX = IMG_Load("winX.png");
-	winO = IMG_Load("winO.png");
-	drawImg = IMG_Load("draw.png");
+	winX = IMG_LoadTexture(renderer, "winX.png");
+	winO = IMG_LoadTexture(renderer, "winO.png");
+	drawImg = IMG_LoadTexture(renderer, "draw.png");
 	board = IMG_Load("board.png");
-	square = IMG_Load("0.png");					//Loading in the image for the square that is to be used by the program
+	// square = IMG_Load("0.png");					
 	imgX = IMG_Load("x.png");
 	imgO = IMG_Load("o.png");
-    int games = 0;
-	int dTurn;
-	int xWins = 0;
+    int games = 0;								//Tracking number of games played, used to calculate who goes first
+	int dTurn;									//dTurn is used to check to see if a draw has occured
+	int xWins = 0;								//Number of wins by each player
 	int oWins = 0;
 	int draws = 0;
 	char string[100];
 	SDL_Color c;
 	SDL_Rect pdest;
 	SDL_Rect psrc;
-	SDL_Rect wdest;
+	SDL_Rect wdest; 
 	SDL_Rect wsrc;
-	
-	start:
+	FixedPrint_Setup();
+	start:										//Start of game
 	
 	int turn = 1;
 	int tTurn = 1;
-	int place[9] = {0,0,0,0,0,0,0,0,0};
-	bool EndGameLoop = false;
+	int place[9] = {0,0,0,0,0,0,0,0,0};			//Array for marking which player has placed something in that spot
+	bool EndGameLoop = false;					//Checking to see if game is over.
 	bool EndGame = false;
 	int winner = 0;
 	
@@ -136,7 +95,7 @@ int main(int argc, char ** argv) {
 		turn = 1;
 		dTurn = 10;
 		ssrc.x = 0; ssrc.y = 0; ssrc.w = 67; ssrc.h = 351;		//If check is true, O moves first
-		sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 351;
+		sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 480;
 		texture = SDL_CreateTextureFromSurface(renderer, turnO);
 		SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 		SDL_RenderPresent(renderer);
@@ -145,34 +104,17 @@ int main(int argc, char ** argv) {
 		turn = 0;
 		dTurn = 9;
 		ssrc.x = 0; ssrc.y = 0; ssrc.w = 67; ssrc.h = 351;		//Else X moves first
-		sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 351;
+		sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 480;
 		texture = SDL_CreateTextureFromSurface(renderer, turnX);
 		SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 		SDL_RenderPresent(renderer);
 	}
-		
-	
-	// sprintf(string, "X wins: %d \nO wins: %d \nDraws: %d", &xWins, &oWins, &draws);
-    // c.r = 255; c.g = 255; c.b = 255;
-    // FixedPrint(renderer, 340, 150, string, &c, 2);
 	
     while (EndGameLoop != true) {											//Loop to keep game running
 	
 
 		
         if (SDL_PollEvent(&event) > 0){			//Checking for an event to occur
-			// if(!(tTurn & 2) == 1) {
-			// tsrc.x = 640; tsrc.y = 0; tsrc.w = 67; tsrc.h = 351;
-			// tdest.x = 640; tdest.y = 0; tdest.w = 67; tdest.h = 351;
-			// texture = SDL_CreateTextureFromSurface(renderer, turnO);
-			// SDL_RenderCopy(renderer, texture, &tsrc, &tdest);
-		// }
-		// else {
-			// tsrc.x = 640; tsrc.y = 0; tsrc.w = 67; tsrc.h = 351;
-			// tdest.x = 640; tdest.y = 0; tdest.w = 67; tdest.h = 351;
-			// texture = SDL_CreateTextureFromSurface(renderer, turnX);
-			// SDL_RenderCopy(renderer, texture, &tsrc, &tdest);
-		// }
 			switch (event.type) {
 				case SDL_MOUSEBUTTONDOWN: // Checking for mouse click event
 					if(event.button.x <= 213 && event.button.y <= 160){								//First space
@@ -180,44 +122,38 @@ int main(int argc, char ** argv) {
 						// float y = 113 / 2;
 						
 						if(!(turn % 2 == 1)) {
-							// tsrc.x = 0; tsrc.y = 0; tsrc.w = 67; tsrc.h = 351;
-							// tdest.x = 640; tdest.y = 0; tdest.w = 67; tdest.h = 351;
-							// texture = SDL_CreateTextureFromSurface(renderer, turnO);
-							// SDL_RenderCopy(renderer, texture, &tsrc, &tdest);
-						
-							
-							if(place[0] == 0) {
+							if(place[0] == 0) {									//Allows an X to be placed as long as no one else has played in that spot already
 								ssrc.x = 0; ssrc.y = 0; ssrc.w = 81; ssrc.h = 91;
 								sdest.x = (113 - 40); sdest.y = (56 / 2); sdest.w = 81; sdest.h = 91;
 								texture = SDL_CreateTextureFromSurface(renderer, imgX);
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 								
-								ssrc.x = 0; ssrc.y = 0; ssrc.w = 67; ssrc.h = 351;
-								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 351;
+								ssrc.x = 0; ssrc.y = 0; ssrc.w = 67; ssrc.h = 351;			//Updating whos turn is being displayed
+								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 480;
 								texture = SDL_CreateTextureFromSurface(renderer, turnO);
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
-								turn++;
-								tTurn++;
-								place[0] = 1;
+								turn++;											//Updating number of turns
+								tTurn++;										
+								place[0] = 1;									//Marking the move in the array
 								break;
 							}
 							break;
 						}
 						else {
 							
-							if(place[0] == 0) {
+							if(place[0] == 0) {									//Allowing O to be placed as long as no one else has played in that spot already
 								ssrc.x = 0; ssrc.y = 0; ssrc.w = 81; ssrc.h = 91;
 								sdest.x = (113 - 40); sdest.y = (56 / 2); sdest.w = 81; sdest.h = 91;
 								texture = SDL_CreateTextureFromSurface(renderer, imgO);
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 								
-								ssrc.x = 0; ssrc.y = 0; ssrc.w = 67; ssrc.h = 351;
-								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 351;
+								ssrc.x = 0; ssrc.y = 0; ssrc.w = 67; ssrc.h = 351;			//Updating whos turn is being displayed
+								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 480;
 								texture = SDL_CreateTextureFromSurface(renderer, turnX);
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 								turn++;
 								tTurn++;
-								place[0] = 2;
+								place[0] = 2;								//Marking move in the array
 								break;
 							}
 							break;
@@ -225,18 +161,18 @@ int main(int argc, char ** argv) {
 		
 					}
 					else if(event.button.x > 213 && event.button.x <= 426 && event.button.y <= 160) {	//Second space
-						// float x = 160 / 2;
-						// float y = 113 / 2;
-						if(!(turn % 2 == 1)) {
-							
-							if(place[1] == 0) {
-								ssrc.x = 0; ssrc.y = 0; ssrc.w = 81; ssrc.h = 91;
+						// float x = 160 / 2;															//Same proccess as above occurs for
+						// float y = 113 / 2;															//the remaining places on the board
+						if(!(turn % 2 == 1)) {															//most of this is just copy/pasted and only
+																										//the array indexes and if statement conditionals
+							if(place[1] == 0) {															//have been changed in order to bound check the proper
+								ssrc.x = 0; ssrc.y = 0; ssrc.w = 81; ssrc.h = 91;						//placement of them on the game board
 								sdest.x = (280); sdest.y = (56 / 2); sdest.w = 81; sdest.h = 91;
 								texture = SDL_CreateTextureFromSurface(renderer, imgX);
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 								
 								ssrc.x = 0; ssrc.y = 0; ssrc.w = 67; ssrc.h = 351;
-								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 351;
+								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 480;
 								texture = SDL_CreateTextureFromSurface(renderer, turnO);
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 								turn++;
@@ -256,7 +192,7 @@ int main(int argc, char ** argv) {
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 								
 								ssrc.x = 0; ssrc.y = 0; ssrc.w = 67; ssrc.h = 351;
-								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 351;
+								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 480;
 								texture = SDL_CreateTextureFromSurface(renderer, turnX);
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 								turn++;
@@ -279,7 +215,7 @@ int main(int argc, char ** argv) {
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 								
 								ssrc.x = 0; ssrc.y = 0; ssrc.w = 67; ssrc.h = 351;
-								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 351;
+								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 480;
 								texture = SDL_CreateTextureFromSurface(renderer, turnO);
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 								turn++;
@@ -299,7 +235,7 @@ int main(int argc, char ** argv) {
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 								
 								ssrc.x = 0; ssrc.y = 0; ssrc.w = 67; ssrc.h = 351;
-								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 351;
+								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 480;
 								texture = SDL_CreateTextureFromSurface(renderer, turnX);
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 								turn++;
@@ -322,7 +258,7 @@ int main(int argc, char ** argv) {
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 								
 								ssrc.x = 0; ssrc.y = 0; ssrc.w = 67; ssrc.h = 351;
-								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 351;
+								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 480;
 								texture = SDL_CreateTextureFromSurface(renderer, turnO);
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 								turn++;
@@ -342,7 +278,7 @@ int main(int argc, char ** argv) {
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 								
 								ssrc.x = 0; ssrc.y = 0; ssrc.w = 67; ssrc.h = 351;
-								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 351;
+								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 480;
 								texture = SDL_CreateTextureFromSurface(renderer, turnX);
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 								turn++;
@@ -365,7 +301,7 @@ int main(int argc, char ** argv) {
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 								
 								ssrc.x = 0; ssrc.y = 0; ssrc.w = 67; ssrc.h = 351;
-								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 351;
+								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 480;
 								texture = SDL_CreateTextureFromSurface(renderer, turnO);
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 								turn++;
@@ -385,7 +321,7 @@ int main(int argc, char ** argv) {
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 								
 								ssrc.x = 0; ssrc.y = 0; ssrc.w = 67; ssrc.h = 351;
-								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 351;
+								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 480;
 								texture = SDL_CreateTextureFromSurface(renderer, turnX);
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 								turn++;
@@ -408,7 +344,7 @@ int main(int argc, char ** argv) {
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 								
 								ssrc.x = 0; ssrc.y = 0; ssrc.w = 67; ssrc.h = 351;
-								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 351;
+								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 480;
 								texture = SDL_CreateTextureFromSurface(renderer, turnO);
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 								turn++;
@@ -429,7 +365,7 @@ int main(int argc, char ** argv) {
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 								
 								ssrc.x = 0; ssrc.y = 0; ssrc.w = 67; ssrc.h = 351;
-								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 351;
+								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 480;
 								texture = SDL_CreateTextureFromSurface(renderer, turnX);
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 								turn++;
@@ -452,7 +388,7 @@ int main(int argc, char ** argv) {
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 								
 								ssrc.x = 0; ssrc.y = 0; ssrc.w = 67; ssrc.h = 351;
-								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 351;
+								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 480;
 								texture = SDL_CreateTextureFromSurface(renderer, turnO);
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 								turn++;
@@ -472,7 +408,7 @@ int main(int argc, char ** argv) {
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 								
 								ssrc.x = 0; ssrc.y = 0; ssrc.w = 67; ssrc.h = 351;
-								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 351;
+								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 480;
 								texture = SDL_CreateTextureFromSurface(renderer, turnX);
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 								turn++;
@@ -495,7 +431,7 @@ int main(int argc, char ** argv) {
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 								
 								ssrc.x = 0; ssrc.y = 0; ssrc.w = 67; ssrc.h = 351;
-								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 351;
+								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 480;
 								texture = SDL_CreateTextureFromSurface(renderer, turnO);
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 								turn++;
@@ -515,7 +451,7 @@ int main(int argc, char ** argv) {
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 								
 								ssrc.x = 0; ssrc.y = 0; ssrc.w = 67; ssrc.h = 351;
-								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 351;
+								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 480;
 								texture = SDL_CreateTextureFromSurface(renderer, turnX);
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 								turn++;
@@ -538,7 +474,7 @@ int main(int argc, char ** argv) {
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 								
 								ssrc.x = 0; ssrc.y = 0; ssrc.w = 67; ssrc.h = 351;
-								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 351;
+								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 480;
 								texture = SDL_CreateTextureFromSurface(renderer, turnO);
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 								turn++;
@@ -558,7 +494,7 @@ int main(int argc, char ** argv) {
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 								
 								ssrc.x = 0; ssrc.y = 0; ssrc.w = 67; ssrc.h = 351;
-								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 351;
+								sdest.x = 640; sdest.y = 0; sdest.w = 67; sdest.h = 480;
 								texture = SDL_CreateTextureFromSurface(renderer, turnX);
 								SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
 								turn++;
@@ -581,35 +517,19 @@ int main(int argc, char ** argv) {
 		
 			
 		}
-		// if(!(turn % 2 == 1)) {
-			// tsrc.x = 640; tsrc.y = 0; tsrc.w = 67; tsrc.h = 351;
-			// tdest.x = 640; tdest.y = 0; tdest.w = 67; tdest.h = 351;
-			// tTexture = SDL_CreateTextureFromSurface(renderer, turnO);
-			// SDL_RenderCopy(renderer, tTexture, &tsrc, &tdest);
-			// SDL_RenderPresent(renderer);
-		// }
-		// else {
-			// tsrc.x = 0; tsrc.y = 0; tsrc.w = 67; tsrc.h = 351;
-			// tdest.x = 640; tdest.y = 0; tdest.w = 67; tdest.h = 351;
-			// tTexture = SDL_CreateTextureFromSurface(renderer, turnX);
-			// SDL_RenderCopy(renderer, tTexture, &tsrc, &tdest);
-			// SDL_RenderPresent(renderer);
-		// }
-		
-		
-		// SDL_RenderClear(renderer);
+	
 		SDL_RenderCopy(renderer, texture, &ssrc, &sdest);
         SDL_RenderPresent(renderer);
 		if (place[0] == 1 && place[1] == 1 && place[2] == 1) {		//Win conditions
-			winner = 1;
-			EndGameLoop = true;
-		}
+			winner = 1;												//This long list of if else statements goes through to see if a win condition has
+			EndGameLoop = true;										//been met by either player. This is done by checking the indexes of the array 
+		}															//to see if any player has three of their team in a row on the board
 		else if (place[0] == 2 && place[1] == 2 && place[2] == 2) {
-			winner = 2;
+			winner = 2;												
 			EndGameLoop = true;
 		}
 		else if (place[3] == 1 && place[4] == 1 && place[5] == 1) {
-			winner = 1;
+			winner = 1;												
 			EndGameLoop = true;
 		}
 		else if (place[3] == 2 && place[4] == 2 && place[5] == 2) {
@@ -664,57 +584,49 @@ int main(int argc, char ** argv) {
 			winner = 2;
 			EndGameLoop = true;
 		}
-		
-		else if(turn == dTurn) {
-				winner = 3;
-				EndGameLoop = true;
-			}
+		else if(turn == dTurn) {					//Base case to check to see if there was a draw.
+			winner = 3;
+			EndGameLoop = true;
+		}
     }
 	while(EndGame != true) {												//Displaying winner of game
 				
-			if(winner == 1){
-				texture = SDL_CreateTextureFromSurface(renderer, winX);
+			if(winner == 1){											//If winner is equal to 1, x was the winner
 				for(int i  = 0; i < 200; i++){
-					// texture = SDL_CreateTextureFromSurface(renderer, winX);		//X wins if winner equals 1
-					// SDL_RenderCopy(renderer, texture, &dest, &dest);
-					// SDL_RenderPresent(renderer);
-					//SDL_Delay(2000);
 					SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-					// SDL_RenderClear(renderer);
 					
-					SDL_RenderCopy(renderer, texture, &dest, &dest);
-					sprintf(string, "Number of wins: %d", xWins);
+					SDL_RenderCopy(renderer, winX, &dest, &dest);		//Displays image for x winning
+					sprintf(string, "Number of wins: %d", xWins);		
 					c.r = 0; c.g = 255; c.b = 0;
-					FixedPrint(renderer, 215, 300, string, &c, 2);
+					FixedPrint(renderer, 320, 240, string, &c, 2);
 					SDL_RenderPresent(renderer);
 				}
-				games++;
+				games++;												//Increments number of games played and how many wins x has
 				xWins ++;
 				EndGame = true;
-				// SDL_RenderClear(renderer);
 			}
-			if(winner == 2){
-				texture = SDL_CreateTextureFromSurface(renderer, winO);		//O wins if winner equals 2
-				SDL_RenderCopy(renderer, texture, &dest, &dest);
-				SDL_RenderPresent(renderer);
-				SDL_Delay(2000);
-				oWins ++;
+			if(winner == 2){											//If winner is equal to 2, o was the winner
+				for(int i = 0; i < 200; i++){
+					SDL_RenderCopy(renderer, winO, &dest, &dest);		//Displaying image for o winning
+					SDL_RenderPresent(renderer);
+				}
+				oWins ++;												//Increments the number of games played and how many wins o has
 				games++;
 				EndGame = true;
 				// SDL_RenderClear(renderer);
 			}
-			if(winner == 3){
-				texture = SDL_CreateTextureFromSurface(renderer, drawImg);	//Game ends in a draw if winner equals 3
-				SDL_RenderCopy(renderer, texture, &dest, &dest);
-				SDL_RenderPresent(renderer);
-				SDL_Delay(2000);
-				draws ++;
+			if(winner == 3){											//A draw occured if winner is euqal to 3
+				for(int i = 0; i < 200; i++){
+					SDL_RenderCopy(renderer, drawImg, &dest, &dest);	//Displays image for draw occurring
+					SDL_RenderPresent(renderer);
+				}
+				draws ++;												//Increments number of games played and how many draws have occured
 				games++;
 				EndGame = true;
 				// SDL_RenderClear(renderer);
 			}
 		}
-		goto start;
+		goto start;														//Going back to the start of the game
  
     SDL_DestroyTexture(texture);					//Cleaning up SDL when we are finished 
     SDL_FreeSurface(image);
@@ -725,9 +637,3 @@ int main(int argc, char ** argv) {
  
     return 0;
 }
-
-// tsrc.x = 640; tsrc.y = 0; tsrc.w = 67; tsrc.h = 351;
-							// tdest.x = 640; tdest.y = 0; tdest.w = 67; tdest.h = 351;
-							// tTexture = SDL_CreateTextureFromSurface(renderer, turnO);
-							// SDL_RenderCopy(renderer, tTexture, &tsrc, &tdest);
-							// SDL_RenderPresent(renderer);
