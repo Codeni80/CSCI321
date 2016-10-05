@@ -7,6 +7,7 @@
  SDL_Texture * texture;
  SDL_Texture * tTexture;
  SDL_Renderer * renderer;
+ SDL_Window * window;
  
 int main(int argc, char ** argv) {
     SDL_Event event;
@@ -21,8 +22,6 @@ int main(int argc, char ** argv) {
 	int clickX, clickY;
 	clickX = 0; clickY = 0;
 	
- 
-    SDL_Window * window;
 	window = SDL_CreateWindow("CS321 Assignment 1", 	//Creating the window for the application
 			    SDL_WINDOWPOS_UNDEFINED, 
 			    SDL_WINDOWPOS_UNDEFINED, 
@@ -71,6 +70,8 @@ int main(int argc, char ** argv) {
 	SDL_Rect wdest; 
 	SDL_Rect wsrc;
 	FixedPrint_Setup();
+	sprintf(string, "X wins: %d || O wins: %d || Draws: %d", xWins, oWins, draws);	//Cheating to display number of wins by each player
+	SDL_SetWindowTitle(window, string);											//by using window title as the counter
 	start:										//Start of game
 	
 	int turn = 1;
@@ -593,16 +594,14 @@ int main(int argc, char ** argv) {
 				
 			if(winner == 1){											//If winner is equal to 1, x was the winner
 				for(int i  = 0; i < 200; i++){
-					SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-					
 					SDL_RenderCopy(renderer, winX, &dest, &dest);		//Displays image for x winning
-					sprintf(string, "Number of wins: %d", xWins);		
-					c.r = 0; c.g = 255; c.b = 0;
-					FixedPrint(renderer, 320, 240, string, &c, 2);
 					SDL_RenderPresent(renderer);
 				}
+				
 				games++;												//Increments number of games played and how many wins x has
 				xWins ++;
+				sprintf(string, "X wins: %d || O wins: %d || Draws: %d", xWins, oWins, draws);
+				SDL_SetWindowTitle(window, string);
 				EndGame = true;
 			}
 			if(winner == 2){											//If winner is equal to 2, o was the winner
@@ -612,6 +611,8 @@ int main(int argc, char ** argv) {
 				}
 				oWins ++;												//Increments the number of games played and how many wins o has
 				games++;
+				sprintf(string, "X wins: %d || O wins: %d || Draws: %d", xWins, oWins, draws);	//Cheating to display how many wins each player has
+				SDL_SetWindowTitle(window, string);											//By using window title as counter
 				EndGame = true;
 				// SDL_RenderClear(renderer);
 			}
@@ -622,6 +623,8 @@ int main(int argc, char ** argv) {
 				}
 				draws ++;												//Increments number of games played and how many draws have occured
 				games++;
+				sprintf(string, "X wins: %d || O wins: %d || Draws: %d", xWins, oWins, draws);
+				SDL_SetWindowTitle(window, string);
 				EndGame = true;
 				// SDL_RenderClear(renderer);
 			}
