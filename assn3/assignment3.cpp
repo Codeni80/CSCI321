@@ -1,3 +1,13 @@
+/********************************
+ *Name: Cody Wilson				*
+ *Class: CSCI 321				*
+ *Assignment: 3 - Tic Tac Toe	*
+ *This assignment is a simple 	*
+ *game of tic tac toe made by	*
+ *using SDL.					*
+ ********************************/
+
+
 #include <iostream>
 #include <SDL.h>    
 #include "SDL_image.h"
